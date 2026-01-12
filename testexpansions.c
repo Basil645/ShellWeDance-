@@ -57,7 +57,8 @@ void	get_var_name(char *str, char **var_name, int *i, int *j)
 	(*var_name)[*j] = '\0';
 }
 
-char	*get_expanded_string(struct s_program_info *program, char **str)
+char	*get_expanded_string(struct s_program_info *program,
+		char **str, int ignore_single_quotes)
 {
 	int	i;
 	int	j;
@@ -70,7 +71,7 @@ char	*get_expanded_string(struct s_program_info *program, char **str)
 	{
 		ft_memset(program->expander->var_name, 0,
 			program->expander->original_len + 1);
-		if ((*str)[i] == '\'' && !inside_double_quotes)
+		if ((*str)[i] == '\'' && !inside_double_quotes && ignore_single_quotes == 0)
 			i = ft_strchr(*str + i + 1, '\'') - *str;
 		else if ((*str)[i] == '$')
 		{
@@ -90,14 +91,15 @@ char	*get_expanded_string(struct s_program_info *program, char **str)
 	return (ft_strdup(*str));
 }
 
-void	initialize_expander_info(struct s_program_info *program, char *str)
+void	initialize_expander_info(struct s_program_info *program, char *str,
+			int ignore_single_quotes)
 {
 	program->expander->original_str = alloc_handling(ft_strdup(str), program);
 	program->expander->original_len = ft_strlen(str);
 	program->expander->var_name = ft_calloc(ft_strlen(str) + 1, 1);
 	alloc_handling(program->expander->var_name, program);
 	program->expander->expanded_str = get_expanded_string(program,
-				&program->expander->original_str);
+				&program->expander->original_str, ignore_single_quotes);
 }
 
 void	destroy_expander_info(struct s_expander_info *expander)

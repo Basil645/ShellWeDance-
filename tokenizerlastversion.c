@@ -103,11 +103,11 @@ void	expand_tokens(struct s_program_info *program)
 		{
 			program->expander = alloc_handling(ft_calloc
 						(sizeof(struct s_expander_info), 1), program); // prot
-			initialize_expander_info(program, token->content);
+			initialize_expander_info(program, token->content, 0);
 			tmp = token->content;
 			token->content = alloc_handling(ft_strdup(program->expander->expanded_str)
 							, program); //prot
-			if (tmp)
+			//if (tmp)
 			free(tmp);
 			destroy_expander_info(program->expander);
 			program->expander = NULL;
@@ -273,6 +273,8 @@ void	destroy_program_info(struct s_program_info *program)
 		destroy_expander_info(program->expander);
 	if (program->rep)
 		destroy_replacement_info(program->rep);
+	if (program->command_list)
+		commands_list_destroy(program->command_list);
 	free(program);
 }
 

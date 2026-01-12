@@ -2,6 +2,7 @@
 #include <stdio.h> // delete
 #include "libft.h"
 #include <stdlib.h>
+#include "../get_next_line/get_next_line.h"
 
 struct s_env {
         char    *content;
@@ -76,18 +77,21 @@ char    *get_env_var_value(char *var_name, struct s_env *env_list);
 void	env_list_destroy(struct s_env *env_list);
 void    get_env_list(struct s_env **env_list, char **envp);
 
-char    *get_expanded_string(struct s_program_info *program, char **str);
-void    initialize_expander_info(struct s_program_info *program, char *str);
+//char    *get_expanded_string(struct s_program_info *program, char **str);
+void    initialize_expander_info(struct s_program_info *program, 
+			char *str, int ignore_single_quotes);
 void    destroy_expander_info(struct s_expander_info *expander);
 void	destroy_replacement_info(struct s_replacement_info *rep);
 void    destroy_program_info(struct s_program_info *program);
 
 void	*alloc_handling(void *ptr, struct s_program_info *program);
+int		handle_syserror(int value, struct s_program_info *program);
 
 void    files_list_add_back(struct s_redirections_files **lst, struct s_redirections_files *new);
 struct s_redirections_files     *files_list_new_node(char *file_name, enum e_redirection_type type);
 
 void    commands_list_add_back(struct s_commands **lst, struct s_commands *new);
+void    commands_list_destroy(struct s_commands *commands_list);
 
 void    files_list_destroy(struct s_redirections_files *files_list);
 
@@ -96,6 +100,7 @@ void    assign_tokens_content(struct s_program_info *program, char *str);
 void    expand_tokens(struct s_program_info *program);
 void    split_unquoted_expansion(struct s_program_info *program);
 void    remove_empty_tokens(struct s_tokens **tokens_list);
+char    *remove_quotes_from_token(struct s_program_info *program, struct s_tokens *token);
 void    remove_quotes_from_tokens(struct s_program_info *program);
 void    check_syntax_errors(struct s_tokens *tokens_list);
 int     check_unclosed_quotes(char *str);

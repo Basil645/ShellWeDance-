@@ -49,6 +49,17 @@ void print_redirections(struct s_redirections_files *files)//delete
     }
 }
 
+void    read_heredoc_test(int fd) // delete
+{
+        char buffer[1];
+
+        while (read(fd, buffer, 1))
+        {
+                printf("%c", buffer[0]);
+        }
+}
+
+
 void print_commands(struct s_commands *cmds)//delete
 {
     int i;
@@ -61,6 +72,9 @@ void print_commands(struct s_commands *cmds)//delete
 //             cmds->absolute_path ? cmds->absolute_path : "(null)");
         print_args(cmds->command_args);
         printf("  Heredoc FD   : %d\n", cmds->heredoc_fd);
+	printf("  Heredoc DATA :\n");
+	if (cmds->heredoc_fd != -1)
+	read_heredoc_test(cmds->heredoc_fd);
         print_redirections(cmds->files_list);
         printf("===========================================\n");
 
@@ -96,16 +110,127 @@ int	get_file_type(enum e_token_type type)
 	return (-1);
 }
 
-void	parse_heredoc()
+int	heredoc_is_infile(struct s_tokens *token)
 {
+	int	is_infile;
 
+	is_infile = 1;
+	while (token && token->type != TOKEN_PIPE)
+	{
+		if (token->type == TOKEN_HEREDOC || token->type == TOKEN_REDIR_INPUT)
+		{
+			is_infile = 0;
+			break ;
+		}
+		token = token->next;
+	}
+	return (is_infile);
+}
+
+void	read_heredoc_not_infile(char *limiter, struct s_program_info *program)
+{
+	char	*line;
+
+	line = NULL;
+	while (!line || ((ft_strlen(line) - 1) != ft_strlen(limiter)
+			|| ft_strncmp(line, limiter, ft_strlen(limiter))))
+	{
+		if (line)
+			free(line);
+		ft_printf(">");
+		line = alloc_handling(get_next_line(0), program); // prot
+	}
+	free(line);
+}
+
+int	read_heredoc_infile(char *limiter, struct s_program_info *program, int expand_heredoc_content)
+{
+	char	*line;
+	int		fd[2];
+
+	handle_syserror(pipe(fd), program);
+	line = NULL;
+	while (!line || ((ft_strlen(line) - 1) != ft_strlen(limiter)
+			|| ft_strncmp(line, limiter, ft_strlen(limiter))))
+	{
+		if (line)
+			free(line);
+		ft_printf(">");
+		line = get_next_line(0); // prot
+		if (!line)
+		{
+			close(fd[0]);
+			close(fd[1]);
+			alloc_handling(NULL, program);
+		}
+		if ((ft_strlen(line) - 1) != ft_strlen(limiter)
+				|| ft_strncmp(line, limiter, ft_strlen(limiter)))
+		{
+			if (expand_heredoc_content)
+			{
+				program->expander = alloc_handling(ft_calloc
+						(sizeof(struct s_expander_info), 1), program); // free line
+				char *tmp = line;
+				initialize_expander_info(program, line, 1);
+				line = alloc_handling(ft_strdup(program->expander->expanded_str), program); // stupid prot you should free (line)
+				free(tmp);
+				destroy_expander_info(program->expander);
+				program->expander = NULL;
+			}
+			write(fd[1], line, ft_strlen(line));
+		}
+	}
+	free(line);
+	close(fd[1]);
+	return (fd[0]);
+}
+
+void	parse_heredoc(struct s_tokens *token, struct s_commands *new_command,
+		struct s_program_info *program)
+{
+	int	expand_heredoc_content;
+	char	*tmp;
+
+	expand_heredoc_content = !(ft_strchr(token->content, '\'') || 
+					ft_strchr(token->content, '\"'));
+	tmp = token->content;
+	token->content = remove_quotes_from_token(program, token);
+	free(tmp);
+	if (heredoc_is_infile(token))
+		new_command->heredoc_fd = read_heredoc_infile(token->content, program,
+						expand_heredoc_content);
+	else
+		read_heredoc_not_infile(token->content, program);
+}
+
+void	parse_redirections(struct s_tokens *token, struct s_commands *new_command,
+			struct s_program_info *program)
+{
+	struct s_redirections_files     *new_file;
+	char	*file_name;
+	int	file_type;
+
+	if (token->previous->type >= TOKEN_REDIR_OUTPUT &&
+			token->previous->type <= TOKEN_REDIR_INPUT)
+	{
+			file_type = get_file_type(token->previous->type);
+			file_name = alloc_handling(ft_strdup(token->content), program); // prot free new_command
+			new_file = files_list_new_node(file_name, file_type); // prot free new_command
+			if (!new_file)
+			{
+				free(file_name);
+				alloc_handling(NULL, program);
+			}
+			files_list_add_back(&new_command->files_list, new_file);
+	}
+	else if (token->previous->type == TOKEN_HEREDOC)
+		parse_heredoc(token, new_command, program);
 }
 
 void	parser(struct s_program_info *program)
 {
 	struct s_tokens	*token;
 	struct s_commands	*new_command;
-	struct s_redirections_files	*new_file;
 	int	i;
 
 	token = program->tokens_list;
@@ -117,26 +242,11 @@ void	parser(struct s_program_info *program)
 		new_command->command_args = alloc_handling(ft_calloc(count_command_args(token) + 1, sizeof(char *)), program);
 		while (token && token->type != TOKEN_PIPE)
 		{
-			if (token->type == TOKEN_WORD && token->previous)
-			{
-				if (token->previous->type >= TOKEN_REDIR_OUTPUT && token->previous->type <= TOKEN_REDIR_INPUT)
-				{
-					new_file = files_list_new_node(alloc_handling(ft_strdup(token->content), program), get_file_type(token->previous->type));
-					files_list_add_back(&new_command->files_list, new_file);
-				}
-				else if (token->previous->type == TOKEN_HEREDOC)
-				{
-					parse_heredoc();
-				}
-				else
-					new_command->command_args[i++] = alloc_handling(ft_strdup(token->content), program);
-
-			}
+			if (token->type == TOKEN_WORD && token->previous && (token->previous->type
+						>= TOKEN_REDIR_OUTPUT && token->previous->type <= TOKEN_HEREDOC))
+					parse_redirections(token, new_command, program);
 			else if (token->type == TOKEN_WORD)
-			{
-				new_command->command_args[i] = alloc_handling(ft_strdup(token->content), program);
-				i++;
-			}
+				new_command->command_args[i++] = alloc_handling(ft_strdup(token->content), program);
 			token = token->next;
 		}
 		commands_list_add_back(&program->command_list, new_command);
@@ -185,7 +295,16 @@ void	test(char *str)
 int main(int argc, char **argv, char **envp)
 {
         env = envp;
-        test("echo $USERs");
+	//===== HEREDOC ======
+	//test("cat << end < infile"); // no need to save the heredoc input data
+	//test("cat << end"); // expands
+	//test("cat << \"hello\""); // doesnt expand
+	//test("cat << a\'b\'c");
+	test("cat << end");
+	//test(" << end | << hello << nani << end1| crazy < eof << eof | ls < eof << i");
+	//test("grep < infile << end");
+	
+        /*test("echo $USERs");
         test("$$$$$$$$$");
         test("echo \"$USER\"");
         test("echo \'$USER\'");
@@ -290,5 +409,5 @@ int main(int argc, char **argv, char **envp)
         test("$");
 	test("ls |grep foo|wc -l");
 	test("cat<test1<test2<test3>test11>test15>test16");
-	test("cat < in1 < in2 < in3 | grep \"error\" < in4 | sort < in5 < in6 | uniq -c | awk '{print $2}' < in7 | tr a-z A-Z | sed 's/FOO/BAR/g' < in8 < in9 | wc -l>out1>out2>out3");
+	test("cat < in1 < in2 < in3 | grep \"error\" < in4 | sort < in5 < in6 | uniq -c | awk '{print $2}' < in7 | tr a-z A-Z | sed 's/FOO/BAR/g' < in8 < in9 | wc -l>out1>out2>out3");*/
 }
