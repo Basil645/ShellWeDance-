@@ -12,6 +12,19 @@
 	return (node);
 }*/
 
+
+struct s_commands	*commands_list_new_node()
+{
+	struct s_commands	*node;
+
+	node = ft_calloc(1, sizeof(struct s_commands));
+	if (!node)
+		return (NULL);
+	node->next = NULL;
+	node->heredoc_fd = -1;
+	return (node);
+}
+
 struct s_commands	*commands_list_last_node(struct s_commands *lst)
 {
         if (!lst)
@@ -44,9 +57,11 @@ void	free_two_dimensional(char **arr)
 	while (arr[i])
 	{
 		free(arr[i]);
+		arr[i] = NULL;
 		i++;
 	}
 	free(arr);
+	arr = NULL;
 }
 
 void	command_destroy(struct s_commands *command)
@@ -62,6 +77,7 @@ void	command_destroy(struct s_commands *command)
 	}
 	if (command->files_list)
 		files_list_destroy(command->files_list);
+	free(command);
 }
 
 void	commands_list_destroy(struct s_commands *commands_list)

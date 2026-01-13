@@ -220,7 +220,7 @@ void	remove_empty_tokens(struct s_tokens **tokens_list)
 
 char	*remove_quotes_from_token(struct s_program_info *program, struct s_tokens *token)
 {
-	char	*new_content;// prot
+	char	*new_content;
 	char	flag;
 	int		i;
 	int		j;
@@ -228,7 +228,7 @@ char	*remove_quotes_from_token(struct s_program_info *program, struct s_tokens *
 	flag = 0;
 	i = 0;
 	j = 0;
-	new_content = alloc_handling(ft_calloc(ft_strlen(token->content) + 1, 1), program);
+	new_content = alloc_handling(ft_calloc(ft_strlen(token->content) + 1, 1), program); // prot
 	while (token->content[i])
 	{
 		if (!flag && (token->content[i] == '\'' || token->content[i] == '\"'))

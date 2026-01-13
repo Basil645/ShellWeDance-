@@ -1,17 +1,6 @@
 #include "minishell.h"
 
-/*void    print_tokens(struct s_tokens *list)
-{
-	struct s_tokens *temp = list;
-
-        while (temp)
-        {
-                printf(" [type: %d,%s]->  ", temp->type,temp->content);
-                temp = temp->next;
-        }
-}*/
-
-const char *token_type_to_string(enum e_token_type type)
+const char *token_type_to_string(enum e_token_type type) // delete
 {
     switch (type)
     {
@@ -25,35 +14,7 @@ const char *token_type_to_string(enum e_token_type type)
     }
 }
 
-
-/*void print_tokens(struct s_tokens *list)
-{
-    struct s_tokens *temp = list;
-    int index = 0;
-
-    printf("\n===== Tokens List =====\n\n");
-
-    while (temp)
-    {
-        printf("┌──────── Token[%d] ────────┐\n", index);
-        printf("│ Type   : %s\n", token_type_to_string(temp->type));
-        printf("│ Content: (%s)\n", temp->content ? temp->content : "NULL");
-        printf("│ Prev   : %p\n", (void *)temp->previous);
-        printf("│ Next   : %p\n", (void *)temp->next);
-        printf("└───────────────┘\n");
-
-        // Visually connect to the next token
-        if (temp->next)
-            printf("       │\n       ▼\n");
-
-        temp = temp->next;
-        index++;
-    }
-
-    printf("\n=========================\n");
-}*/
-
-void print_tokens(struct s_tokens *list)
+void print_tokens(struct s_tokens *list) // delete
 {
     int i = 0;
 
@@ -72,10 +33,8 @@ void print_tokens(struct s_tokens *list)
         list = list->next;
         i++;
     }
-
     printf("\n");
 }
-
 
 struct s_tokens	*tokens_list_new_node(char *value)
 {
@@ -115,7 +74,6 @@ void	tokens_list_add_back(struct s_tokens **lst, struct s_tokens *new)
 	lastnode->next = new;
 	new->previous = lastnode;
 }
-
 
 void	tokens_list_destroy(struct s_tokens *tokens_list)
 {

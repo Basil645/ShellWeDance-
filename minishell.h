@@ -90,6 +90,7 @@ int		handle_syserror(int value, struct s_program_info *program);
 void    files_list_add_back(struct s_redirections_files **lst, struct s_redirections_files *new);
 struct s_redirections_files     *files_list_new_node(char *file_name, enum e_redirection_type type);
 
+struct s_commands       *commands_list_new_node();
 void    commands_list_add_back(struct s_commands **lst, struct s_commands *new);
 void    commands_list_destroy(struct s_commands *commands_list);
 
@@ -104,3 +105,6 @@ char    *remove_quotes_from_token(struct s_program_info *program, struct s_token
 void    remove_quotes_from_tokens(struct s_program_info *program);
 void    check_syntax_errors(struct s_tokens *tokens_list);
 int     check_unclosed_quotes(char *str);
+
+void    parse_heredoc(struct s_tokens *token, struct s_commands *new_command,
+                struct s_program_info *program);
