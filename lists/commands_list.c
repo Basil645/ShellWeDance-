@@ -1,17 +1,4 @@
-#include "minishell.h"
-
-/*struct s_commands	*commands_list_new_node(char *value)
-{
-	struct s_commands	*node;	
-
-	node = malloc(sizeof(struct s_commands));
-	if (!node)
-		return (NULL);
-	node->absolute_path = value;
-	node->next = NULL;
-	return (node);
-}*/
-
+#include "../minishell.h"
 
 struct s_commands	*commands_list_new_node()
 {
@@ -49,21 +36,6 @@ void	commands_list_add_back(struct s_commands **lst, struct s_commands *new)
 	lastnode->next = new;
 }
 
-void	free_two_dimensional(char **arr)
-{
-	int	i;
-
-	i = 0;
-	while (arr[i])
-	{
-		free(arr[i]);
-		arr[i] = NULL;
-		i++;
-	}
-	free(arr);
-	arr = NULL;
-}
-
 void	command_destroy(struct s_commands *command)
 {
 	if (command->absolute_path)
@@ -78,16 +50,4 @@ void	command_destroy(struct s_commands *command)
 	if (command->files_list)
 		files_list_destroy(command->files_list);
 	free(command);
-}
-
-void	commands_list_destroy(struct s_commands *commands_list)
-{
-	struct s_commands	*tmp;
-
-	while (commands_list)
-	{
-		tmp = commands_list;
-		commands_list = commands_list->next;
-		command_destroy(tmp);
-	}
 }

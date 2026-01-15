@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../minishell.h"
 
 const char *token_type_to_string(enum e_token_type type) // delete
 {
@@ -73,17 +73,4 @@ void	tokens_list_add_back(struct s_tokens **lst, struct s_tokens *new)
 	lastnode = tokens_list_last_node(*lst);
 	lastnode->next = new;
 	new->previous = lastnode;
-}
-
-void	tokens_list_destroy(struct s_tokens *tokens_list)
-{
-	struct s_tokens	*tmp;
-
-	while (tokens_list)
-	{
-		tmp = tokens_list;
-		tokens_list = tokens_list->next;
-		free(tmp->content);
-		free(tmp);
-	}
 }

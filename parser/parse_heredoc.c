@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../minishell.h"
 
 int	heredoc_is_infile(struct s_tokens *token)
 {

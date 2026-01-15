@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../minishell.h"
 
 void	*alloc_handling(void *ptr, struct s_program_info *program)
 {

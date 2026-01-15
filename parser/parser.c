@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../minishell.h"
 
 const char *redir_type_to_str(enum e_redirection_type type) // delete
 {
@@ -92,7 +92,7 @@ int	count_command_args(struct s_tokens *token)
 	{
 		if (token->type == TOKEN_WORD)
 			if (!token->previous || token->previous->type == TOKEN_WORD
-					|| token->previous->type == TOKEN_PIPE)
+				|| token->previous->type == TOKEN_PIPE)
 				count++;
 		token = token->next;
 	}
@@ -110,12 +110,12 @@ int	get_file_type(enum e_token_type type)
 	return (-1);
 }
 
-void	parse_redirections(struct s_tokens *token, struct s_commands *new_command,
-			struct s_program_info *program)
+void	parse_redirections(struct s_tokens *token,
+		struct s_commands *new_command, struct s_program_info *program)
 {
-	struct s_redirections_files     *new_file;
-	char	*file_name;
-	int	file_type;
+	struct s_redirections_files	*new_file;
+	char				*file_name;
+	int							file_type;
 
 	if (token->previous->type >= TOKEN_REDIR_OUTPUT &&
 			token->previous->type <= TOKEN_REDIR_INPUT)
@@ -136,9 +136,9 @@ void	parse_redirections(struct s_tokens *token, struct s_commands *new_command,
 
 void	parser(struct s_program_info *program)
 {
-	struct s_tokens	*token;
+	struct s_tokens		*token;
 	struct s_commands	*new_command;
-	int	i;
+	int					i;
 
 	token = program->tokens_list;
 	while (token)
@@ -180,7 +180,7 @@ void	test(char *str)
 	ft_memset(program, 0 , sizeof(struct s_program_info));
 	assign_tokens_content(program, str);
         assign_tokens_types(&program->tokens_list);
-	check_syntax_errors(program->tokens_list);// sheet
+	check_syntax_errors(program->tokens_list, program);// sheet
 	get_env_list(&program->env_list, env);
 
         expand_tokens(program);
@@ -189,8 +189,8 @@ void	test(char *str)
         remove_quotes_from_tokens(program);
         print_tokens(program->tokens_list);
 
-	if (!program->tokens_list) // if the list was empty not sure
-		return ;
+	// if (!program->tokens_list) // if the list was empty not sure
+	// 	return ;
 	//program->command_list = ft_calloc(1, sizeof(struct s_commands));
 	parser(program);
 	print_commands(program->command_list);
@@ -203,6 +203,33 @@ void	test(char *str)
 int main(int argc, char **argv, char **envp)
 {
         env = envp;
+
+    //===== SYNTAX ERRORS ===== 
+    //   (exit status -> 2)
+    /*test("\'");
+    test("\"\"\"");
+    test("||||");
+    test(">>|><");
+    test("cat <<");
+    test("cat >> > >> << >>");
+    test("> pwd (ls)");
+    test("cat | ls > outfile >");
+    test("echo hola <<<<< bonjour");
+    test("|");
+    test("ls | ls < |");
+    test("ls >> > file");
+    test("||");
+    test("<>");
+    test("< >ls");
+    test("ls | <");
+    test("< | <");
+    test("<");
+    test(">");
+    test(">>");
+    test("<<");
+    test(">>                            >                   >                                   >");*/
+
+
 	//===== HEREDOC ======
 	//test("cat << end < infile"); // no need to save the heredoc input data
 	//test("cat << end"); // expands
@@ -250,21 +277,9 @@ int main(int argc, char **argv, char **envp)
         test("\"\'$a\'\"");
         test("\"\'hello\"");
         test("");
-        test("<");
-        test(">");
-        test("<<");
-        test(">>");
-        test(">>                            >                   >                                   >");
         test("|");
         test("ls | ls");
         test("ls|<outfile");
-        test("||||");
-        test(">>|><");
-        test("echo hola <<<<< bonjour");
-        test("cat <<");
-        test("cat >> > >> << >>");
-        test("> pwd (ls)");
-        test("cat | ls > outfile >");
         test(" echo hola > a >>b echo que tal cat a | <b cat | cat > c | cat");
         test("ls | | | wc");
         test("ls |");
@@ -317,5 +332,9 @@ int main(int argc, char **argv, char **envp)
         test("$");
 	test("ls |grep foo|wc -l");
 	test("cat<test1<test2<test3>test11>test15>test16");*/
-	test("cat < in1 < in2 < in3 | grep \"error\" < in4 | sort < in5 < in6 | uniq -c | awk '{print $2}' < in7 | tr a-z A-Z | sed 's/FOO/BAR/g' < in8 < in9 | wc -l>out1>out2>out3");
+	//test("cat < in1 < in2 < in3 | grep \"error\" < in4 | sort < in5 < in6 | uniq -c | awk '{print $2}' < in7 | tr a-z A-Z | sed 's/FOO/BAR/g' < in8 < in9 | wc -l>out1>out2>out3");
+	//test("cat -e < infile -e |ls >outfile -l ");
+	//test("\"ls -l\"");
+	//test("l\'s\'");
+	test("ls -l <infile>outfile | cat | cat $s");
 }

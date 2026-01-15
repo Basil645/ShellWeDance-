@@ -1,25 +1,4 @@
-#include "libft.h"
-#include "minishell.h"
-#include <stdlib.h>
-
-void	initialize_replacement_info(struct s_program_info *program, char *str, int prefix_len)
-{
-	program->rep->original = alloc_handling(ft_strdup(str), program);
-	program->rep->value = alloc_handling(
-			get_env_var_value(program->expander->var_name, program->env_list), program);
-	program->rep->prefix = alloc_handling(ft_substr(str, 0, prefix_len), program);
-}
-
-void	destroy_replacement_info(struct s_replacement_info *rep)
-{
-	if (rep->original)
-		free(rep->original);
-	if (rep->prefix)
-		free(rep->prefix);
-	if (rep->value)
-		free(rep->value);
-	free(rep);
-}
+#include "../minishell.h"
 
 char	*replace_var_name_with_value(struct s_program_info *program, 
 				char *str, int *i, int j)
@@ -91,25 +70,27 @@ char	*get_expanded_string(struct s_program_info *program,
 	return (ft_strdup(*str));
 }
 
-void	initialize_expander_info(struct s_program_info *program, char *str,
-			int ignore_single_quotes)
+void	expand_tokens(struct s_program_info *program)
 {
-	program->expander->original_str = alloc_handling(ft_strdup(str), program);
-	program->expander->original_len = ft_strlen(str);
-	program->expander->var_name = ft_calloc(ft_strlen(str) + 1, 1);
-	alloc_handling(program->expander->var_name, program);
-	program->expander->expanded_str = get_expanded_string(program,
-				&program->expander->original_str, ignore_single_quotes);
-}
+	char	*tmp;
+	struct s_tokens *token;
 
-void	destroy_expander_info(struct s_expander_info *expander)
-{
-	if (expander->original_str)
-		free(expander->original_str);
-	if (expander->var_name)
-		free(expander->var_name);
-	if (expander->expanded_str)
-		free(expander->expanded_str);
-	ft_memset(expander, 0, sizeof(struct s_expander_info));
-	free(expander);
+	token = program->tokens_list;
+	while (token)
+	{
+		if (((token->previous && token->previous->type != TOKEN_HEREDOC)
+					|| (!token->previous)) && token->type == TOKEN_WORD)
+		{
+			program->expander = alloc_handling(ft_calloc
+						(sizeof(struct s_expander_info), 1), program); // prot
+			initialize_expander_info(program, token->content, 0);
+			tmp = token->content;
+			token->content = alloc_handling(ft_strdup(program->expander->expanded_str)
+							, program); //prot
+			free(tmp);
+			destroy_expander_info(program->expander);
+			program->expander = NULL;
+		}
+		token = token->next;
+	}
 }

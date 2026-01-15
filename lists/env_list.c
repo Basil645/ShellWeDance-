@@ -1,15 +1,4 @@
-#include "minishell.h"
-
-/*void    print_envs(struct s_env *list)
-{
-	struct s_env *temp = list;
-
-        while (temp)
-        {
-                printf("%s\n", temp->content);
-                temp = temp->next;
-        }
-}*/
+#include "../minishell.h"
 
 struct s_env	*env_list_new_node(char *value)
 {
@@ -45,19 +34,6 @@ void    env_list_add_back(struct s_env **lst, struct s_env *new)
         }
         lastnode = env_list_last_node(*lst);
         lastnode->next = new;
-}
-
-
-void	env_list_destroy(struct s_env *env_list)
-{
-	struct s_env	*tmp;
-
-	while (env_list)
-	{
-		tmp = env_list;
-		env_list = env_list->next;
-		free(tmp);
-	}
 }
 
 void    get_env_list(struct s_env **env_list, char **envp)

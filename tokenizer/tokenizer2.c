@@ -1,0 +1,76 @@
+#include "../minishell.h"
+
+void	insert_expanded_token(struct s_program_info *program,
+			struct s_tokens *token, struct s_tokens *new_token)
+{
+	if (token->previous)
+		token->previous->next = new_token;
+	new_token->next = token;
+	new_token->type = TOKEN_WORD;
+	if (token->previous)
+		new_token->previous = token->previous;
+	else
+	{
+		new_token->previous = NULL;
+		program->tokens_list = new_token;
+	}
+	token->previous = new_token;
+}
+
+void	split_token_by_spaces(struct s_program_info *program, struct s_tokens *token, int i)
+{
+	int			j;
+	char		*tmp;
+	struct s_tokens	*new_token;
+
+	j = 0;
+	while (token->content[i + j] == ' ')
+		j++;
+	tmp = alloc_handling(ft_substr(token->content, 0, i), program);
+	new_token = tokens_list_new_node(tmp); // 2 protection
+	if (!new_token)
+	{
+		free(tmp);
+		alloc_handling(NULL, program);
+	}
+	i += j;
+	tmp = token->content;
+	token->content = ft_substr(token->content, i, ft_strlen(token->content) - i);// protection
+	free(tmp);
+	if (!token->content)
+	{
+		free(new_token->content);
+		free(new_token);
+		alloc_handling(NULL, program);
+	}
+	insert_expanded_token(program, token, new_token);
+}
+
+void    split_unquoted_expansion(struct s_program_info *program)
+{
+	int	i;
+	struct s_tokens	*token;
+
+	token = program->tokens_list;
+	while (token)
+	{
+		if (((token->previous && token->previous->type != TOKEN_HEREDOC)
+					|| (!token->previous)) && token->type == TOKEN_WORD)
+		{
+			i = 0;
+			while (token->content[i])
+			{
+				if (token->content[i] == '\'' || token->content[i] == '\"')
+					i = ft_strchr(token->content + i + 1, token->content[i]) - token->content + 1;
+				else if (token->content[i] == ' ')
+				{
+					split_token_by_spaces(program, token, i);
+					i = 0;
+				}
+				else
+					i++;
+			}
+		}
+		token = token->next;
+	}
+}

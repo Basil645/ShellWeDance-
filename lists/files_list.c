@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../minishell.h"
 
 struct s_redirections_files	*files_list_new_node(char *file_name, enum e_redirection_type type)
 {
@@ -35,17 +35,4 @@ void	files_list_add_back(struct s_redirections_files **lst, struct s_redirection
 	}
 	lastnode = files_list_last_node(*lst);
 	lastnode->next = new;
-}
-
-void	files_list_destroy(struct s_redirections_files *files_list)
-{
-	struct s_redirections_files	*tmp;
-
-	while (files_list)
-	{
-		tmp = files_list;
-		files_list = files_list->next;
-		free(tmp->name);
-		free(tmp);
-	}
 }
