@@ -17,25 +17,26 @@ void	insert_expanded_token(struct s_program_info *program,
 	token->previous = new_token;
 }
 
-void	split_token_by_spaces(struct s_program_info *program, struct s_tokens *token, int i)
+void	split_token_by_spaces(struct s_program_info *program,
+		struct s_tokens *token, int i)
 {
-	int			j;
-	char		*tmp;
+	char			*tmp;
 	struct s_tokens	*new_token;
+	int				j;
 
 	j = 0;
 	while (token->content[i + j] == ' ')
 		j++;
 	tmp = alloc_handling(ft_substr(token->content, 0, i), program);
-	new_token = tokens_list_new_node(tmp); // 2 protection
+	new_token = tokens_list_new_node(tmp);
 	if (!new_token)
 	{
 		free(tmp);
 		alloc_handling(NULL, program);
 	}
-	i += j;
 	tmp = token->content;
-	token->content = ft_substr(token->content, i, ft_strlen(token->content) - i);// protection
+	token->content = ft_substr(token->content,
+			i + j, ft_strlen(token->content) - (i + j));
 	free(tmp);
 	if (!token->content)
 	{
@@ -46,29 +47,29 @@ void	split_token_by_spaces(struct s_program_info *program, struct s_tokens *toke
 	insert_expanded_token(program, token, new_token);
 }
 
-void    split_unquoted_expansion(struct s_program_info *program)
+void	split_unquoted_expansion(struct s_program_info *program)
 {
-	int	i;
+	int				i;
 	struct s_tokens	*token;
 
 	token = program->tokens_list;
 	while (token)
 	{
 		if (((token->previous && token->previous->type != TOKEN_HEREDOC)
-					|| (!token->previous)) && token->type == TOKEN_WORD)
+				|| (!token->previous)) && token->type == TOKEN_WORD)
 		{
 			i = 0;
 			while (token->content[i])
 			{
 				if (token->content[i] == '\'' || token->content[i] == '\"')
-					i = ft_strchr(token->content + i + 1, token->content[i]) - token->content + 1;
+					i = ft_strchr(token->content + i + 1, token->content[i])
+						- token->content;
 				else if (token->content[i] == ' ')
 				{
 					split_token_by_spaces(program, token, i);
-					i = 0;
+					i = -1;
 				}
-				else
-					i++;
+				i++;
 			}
 		}
 		token = token->next;

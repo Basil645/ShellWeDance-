@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-struct s_commands	*commands_list_new_node()
+struct s_commands	*commands_list_new_node(void)
 {
 	struct s_commands	*node;
 
@@ -14,11 +14,11 @@ struct s_commands	*commands_list_new_node()
 
 struct s_commands	*commands_list_last_node(struct s_commands *lst)
 {
-        if (!lst)
-                return (NULL);
-        while (lst->next != NULL)
-                lst = lst->next;
-        return (lst);
+	if (!lst)
+		return (NULL);
+	while (lst->next != NULL)
+		lst = lst->next;
+	return (lst);
 }
 
 void	commands_list_add_back(struct s_commands **lst, struct s_commands *new)

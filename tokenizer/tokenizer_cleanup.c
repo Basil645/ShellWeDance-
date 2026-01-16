@@ -26,7 +26,8 @@ void	remove_empty_tokens(struct s_tokens **tokens_list)
 	}
 }
 
-char	*remove_quotes_from_token(struct s_program_info *program, struct s_tokens *token)
+char	*remove_quotes_from_token(struct s_program_info *program,
+		struct s_tokens *token)
 {
 	char	*new_content;
 	char	flag;
@@ -36,7 +37,8 @@ char	*remove_quotes_from_token(struct s_program_info *program, struct s_tokens *
 	flag = 0;
 	i = 0;
 	j = 0;
-	new_content = alloc_handling(ft_calloc(ft_strlen(token->content) + 1, 1), program); // prot
+	new_content = alloc_handling
+		(ft_calloc(ft_strlen(token->content) + 1, 1), program);
 	while (token->content[i])
 	{
 		if (!flag && (token->content[i] == '\'' || token->content[i] == '\"'))
@@ -54,17 +56,17 @@ char	*remove_quotes_from_token(struct s_program_info *program, struct s_tokens *
 void	remove_quotes_from_tokens(struct s_program_info *program)
 {
 	struct s_tokens		*token;
-	char			*new_content;
-	char			*tmp;
+	char				*new_content;
+	char				*tmp;
 
 	token = program->tokens_list;
 	while (token)
 	{
 		if (((token->previous && token->previous->type != TOKEN_HEREDOC)
-		  		|| (!token->previous)) && token->type == TOKEN_WORD)
+				|| (!token->previous)) && token->type == TOKEN_WORD)
 		{
 			tmp = token->content;
-			token->content = remove_quotes_from_token(program, token); // prot
+			token->content = remove_quotes_from_token(program, token);
 			free(tmp);
 		}
 		token = token->next;

@@ -14,41 +14,41 @@ struct s_env	*env_list_new_node(char *value)
 
 struct s_env	*env_list_last_node(struct s_env *lst)
 {
-        if (!lst)
-                return (NULL);
-        while (lst->next != NULL)
-                lst = lst->next;
-        return (lst);
+	if (!lst)
+		return (NULL);
+	while (lst->next != NULL)
+		lst = lst->next;
+	return (lst);
 }
 
-void    env_list_add_back(struct s_env **lst, struct s_env *new)
+void	env_list_add_back(struct s_env **lst, struct s_env *new)
 {
-        struct s_env *lastnode;
+	struct s_env	*lastnode;
 
-        if (!lst || !new)
-                return ;
-        if (!*lst)
-        {
-                *lst = new;
-                return ;
-        }
-        lastnode = env_list_last_node(*lst);
-        lastnode->next = new;
+	if (!lst || !new)
+		return ;
+	if (!*lst)
+	{
+		*lst = new;
+		return ;
+	}
+	lastnode = env_list_last_node(*lst);
+	lastnode->next = new;
 }
 
-void    get_env_list(struct s_env **env_list, char **envp)
+void	get_env_list(struct s_env **env_list, char **envp,
+		struct s_program_info *program)
 {
-        int     i;
-        struct s_env *new_node;
+	int				i;
+	struct s_env	*new_node;
 
-        i = 0;
-        while (envp[i++])
-        {
-                new_node = env_list_new_node(envp[i - 1]);
-                /*if (!new_node)
-                        handle_syserror();*/
-                env_list_add_back(env_list, new_node);
-        }
+	i = 0;
+	while (envp[i++])
+	{
+		new_node = alloc_handling
+			(env_list_new_node(envp[i - 1]), program);
+		env_list_add_back(env_list, new_node);
+	}
 }
 
 char	*get_env_var_value(char *var_name, struct s_env *env_list)
@@ -60,7 +60,7 @@ char	*get_env_var_value(char *var_name, struct s_env *env_list)
 	{
 		if (ft_strlen(env_list->content) >= var_name_length)
 			if (!ft_strncmp(env_list->content, var_name, var_name_length)
-					&& env_list->content[var_name_length] == '=')
+				&& env_list->content[var_name_length] == '=')
 				return (ft_strdup(&env_list->content[var_name_length + 1]));
 		env_list = env_list->next;
 	}

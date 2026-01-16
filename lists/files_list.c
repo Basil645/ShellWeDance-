@@ -1,6 +1,7 @@
 #include "../minishell.h"
 
-struct s_redirections_files	*files_list_new_node(char *file_name, enum e_redirection_type type)
+struct s_redirections_files	*files_list_new_node(char *file_name,
+		enum e_redirection_type type)
 {
 	struct s_redirections_files	*node;
 
@@ -13,16 +14,18 @@ struct s_redirections_files	*files_list_new_node(char *file_name, enum e_redirec
 	return (node);
 }
 
-struct s_redirections_files	*files_list_last_node(struct s_redirections_files *lst)
+struct s_redirections_files	*files_list_last_node(
+		struct s_redirections_files *lst)
 {
-        if (!lst)
-                return (NULL);
-        while (lst->next != NULL)
-                lst = lst->next;
-        return (lst);
+	if (!lst)
+		return (NULL);
+	while (lst->next != NULL)
+		lst = lst->next;
+	return (lst);
 }
 
-void	files_list_add_back(struct s_redirections_files **lst, struct s_redirections_files *new)
+void	files_list_add_back(struct s_redirections_files **lst,
+		struct s_redirections_files *new)
 {
 	struct s_redirections_files	*lastnode;
 

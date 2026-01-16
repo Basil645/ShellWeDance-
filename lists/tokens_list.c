@@ -52,11 +52,11 @@ struct s_tokens	*tokens_list_new_node(char *value)
 
 struct s_tokens	*tokens_list_last_node(struct s_tokens *lst)
 {
-        if (!lst)
-                return (NULL);
-        while (lst->next != NULL)
-                lst = lst->next;
-        return (lst);
+	if (!lst)
+		return (NULL);
+	while (lst->next != NULL)
+		lst = lst->next;
+	return (lst);
 }
 
 void	tokens_list_add_back(struct s_tokens **lst, struct s_tokens *new)
