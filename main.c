@@ -40,7 +40,7 @@ void	test(char *str)
 int main(int argc, char **argv, char **envp)
 {
         env = envp;
-//test(" >test9 ls<test $s<test2<test>>test4>test5 hello\"-l\"myname   ''is''basil");
+//test(" >test9 ls<test $s<test2<test>>test4>test5 hello\"-l\"myname   ''is''basil");                                                                                                                                                                                                                                                                                                                                                                                                           
         test("cat << end");
     //===== SYNTAX ERRORS ===== 
     //   (exit status -> 2)
@@ -61,7 +61,7 @@ int main(int argc, char **argv, char **envp)
     test("< >ls");
     test("ls | <");
     test("< | <");
-    test("<");
+    test("<");                                                                                                                          
     test(">");
     test(">>");
     test("<<");
